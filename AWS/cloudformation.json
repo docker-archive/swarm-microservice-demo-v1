@@ -20,6 +20,26 @@
       "Type" : "AWS::EC2::Subnet::Id",
       "Description" : "ID of an existing subnet into which all machines will be launched"
     },
+    
+    "masterIP" : {
+      "Description" : "IP of master (where Swarm Manager and consul kv run)",
+      "Type": "String",
+      "MinLength": "7",
+      "MaxLength": "15",
+      "Default": "192.168.33.11",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
+   },
+
+    "interlockIP" : {
+      "Description" : "IP of interlock (load balancer for web-vote-app)",
+      "Type": "String",
+      "MinLength": "7",
+      "MaxLength": "15",
+      "Default": "192.168.33.12",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
+   },
 
     "web01IP" : {
       "Description" : "IP of web01",
@@ -109,6 +129,70 @@
   },
 
   "Resources" : {
+  
+    "master" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                        ] },
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "PrivateIpAddress" : { "Ref" : "masterIP" },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash",
+                "sudo hostname master",
+                "sudo service docker stop",
+                "sudo rm -f /etc/docker/key.json",
+                "sudo service docker start"
+              ]
+            ]
+          }
+        },
+        "Tags" : [
+            {"Key" : "Name", "Value" : "master"}
+        ]
+      }
+    },
+
+    "interlock" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                        ] },
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "PrivateIpAddress" : { "Ref" : "interlockIP" },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash",
+                "sudo hostname interlock",
+                "sudo service docker stop",
+                "sudo rm -f /etc/docker/key.json",
+                "sudo service docker start"
+              ]
+            ]
+          }
+        },
+        "Tags" : [
+            {"Key" : "Name", "Value" : "interlock"}
+        ]
+      }
+    },
+
+  
     "web01" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
@@ -126,6 +210,7 @@
               "\n",
               [
                 "#!/bin/bash",
+                "sudo hostname web01",
                 "sudo service docker stop",
                 "sudo rm -f /etc/docker/key.json",
                 "sudo service docker start"
@@ -156,6 +241,7 @@
               "\n",
               [
                 "#!/bin/bash",
+                "sudo hostname worker01",
                 "sudo service docker stop",
                 "sudo rm -f /etc/docker/key.json",
                 "sudo service docker start"
@@ -186,6 +272,7 @@
               "\n",
               [
                 "#!/bin/bash",
+                "sudo hostname pg",
                 "sudo service docker stop",
                 "sudo rm -f /etc/docker/key.json",
                 "sudo service docker start"
@@ -218,22 +305,51 @@
   },
 
   "Outputs" : {
-    "Web01InstanceId" : {
-      "Description" : "InstanceId of web01",
-      "Value" : { "Ref" : "web01" }
-    },
+  
+    "masterPrivateIP" : {
+      "Description" : "Private IP of master",
+      "Value" : { "Fn::GetAtt" : [ "master", "PrivateIp" ] }
+    },    
+    "masterPublicIP" : {
+      "Description" : "Public IP of master",
+      "Value" : { "Fn::GetAtt" : [ "master", "PublicIp" ] }
+    },    
+
+    "interlockPrivateIP" : {
+      "Description" : "Private IP of interlock",
+      "Value" : { "Fn::GetAtt" : [ "interlock", "PrivateIp" ] }
+    },    
+    "interlockPublicIP" : {
+      "Description" : "Public IP of interlock",
+      "Value" : { "Fn::GetAtt" : [ "interlock", "PublicIp" ] }
+    },    
+
+  
     "web01PrivateIP" : {
       "Description" : "Private IP of web01",
       "Value" : { "Fn::GetAtt" : [ "web01", "PrivateIp" ] }
-    },
-    
-    "Worker01InstanceId" : {
-      "Description" : "InstanceId of worker1",
-      "Value" : { "Ref" : "worker01" }
-    },
+    },    
+    "web01PublicIP" : {
+      "Description" : "Public IP of web01",
+      "Value" : { "Fn::GetAtt" : [ "web01", "PublicIp" ] }
+    },    
+
     "worker01PrivateIP" : {
       "Description" : "Private IP of worker01",
       "Value" : { "Fn::GetAtt" : [ "worker01", "PrivateIp" ] }
+    },
+    "worker01PublicIP" : {
+      "Description" : "Public IP of worker01",
+      "Value" : { "Fn::GetAtt" : [ "worker01", "PublicIp" ] }
+    },
+    
+    "pgPrivateIP" : {
+      "Description" : "Private IP of pg",
+      "Value" : { "Fn::GetAtt" : [ "pg", "PrivateIp" ] }
+    },
+    "pgPublicIP" : {
+      "Description" : "Public IP of pg",
+      "Value" : { "Fn::GetAtt" : [ "pg", "PublicIp" ] }
     }
     
   }
