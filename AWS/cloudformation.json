@@ -172,11 +172,11 @@
     "pg" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
-        "InstanceType" : "t2.micro",
+        "InstanceType" : "m3.medium",
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "m3.medium", "Arch" ] } 
                                         ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "pgIP" },
