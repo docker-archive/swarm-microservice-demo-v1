@@ -14,6 +14,6 @@ Asynchronously, M background workers running on separate nodes scan through thos
 
 This cluster can be deployed on either Vagrant and AWS.  A CloudFormation template (AWS) and a Vangrantfile (Vagrant) are included.
 
-For AWS deployment:  follow `AWS/HOWTO.TXT` and use the `AWS/cloudformation.json` file.
+For AWS deployment:  start at `AWS/HOWTO.TXT`, which will guide you through other text files documenting the various steps to set up the cluster and the application on AWS.
 
-For Vagrant deployment:  follow `Vagrant/HOWTO.TXT`.
+For Vagrant deployment:  start at `Vagrant/HOWTO.TXT`, again following the pointers to other text files and scripts.
