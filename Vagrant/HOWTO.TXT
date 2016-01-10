@@ -73,7 +73,19 @@ http://stats:interlock@votingapp.local/haproxy?stats
 #
 docker run --env="constraint:node==pg" --name pg -e POSTGRES_PASSWORD=pg8675309 --net mynet -p 5432:5432 -d postgres ## expose 5432 for debugging only
 
+And count votes like this:
+
+PGPASSWORD=pg8675309 /Applications/Postgres.app/Contents/Versions/9.5/bin/psql -p5432 -h 192.168.33.251 -U postgres -d postgres 
+postgres=# select * from votes;
+  id               | vote 
+  -----------------+------
+  cc0f317dfbb594ab | b
+  (1 row)
+
+
 #
 # To start workers:
 #
 docker run --env="constraint:node==worker01" -d -e WORKER_NUMBER='01' -e FROM_REDIS_HOST=1 -e TO_REDIS_HOST=1 --name worker01 --net mynet vote-worker
+
+

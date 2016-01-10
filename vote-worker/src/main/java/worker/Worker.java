@@ -44,7 +44,7 @@ class Worker {
     try {
       String fromRedisHost = getRedisQueueHostname();
       Jedis redis = connectToRedis(fromRedisHost);
-      //Connection dbConn = connectToDB("voteapps_db_1");
+      Connection dbConn = connectToDB("pg");
 
       System.err.println("Watching vote queue");
 
@@ -55,16 +55,15 @@ class Worker {
         String vote = voteData.getString("vote");
 
         System.err.printf("Processing vote for '%s' by '%s'\n", vote, voterID);
-        //updateVote(dbConn, voterID, vote);
+        updateVote(dbConn, voterID, vote);
       }
-//    } catch (SQLException e) {
-//      e.printStackTrace();
-//      System.exit(1);
-//    }
-      } catch (Exception e) {
-        e.printStackTrace();
-	System.exit(1);
-      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      System.exit(1);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
   }
 
   static void updateVote(Connection dbConn, String voterID, String vote) throws SQLException {
@@ -103,6 +102,7 @@ class Worker {
 
   static Connection connectToDB(String host) throws SQLException {
     Connection conn = null;
+    String password = "pg8675309";
 
     try {
 
@@ -111,7 +111,9 @@ class Worker {
 
       while (conn == null) {
         try {
-          conn = DriverManager.getConnection(url, "postgres", "");
+	  //Properties props = new Properties();
+          //props.setProperty("user","postgres");
+          conn = DriverManager.getConnection(url, "postgres", password);
         } catch (SQLException e) {
           System.err.println("Failed to connect to db - retrying");
           sleep(1000);
