@@ -141,17 +141,13 @@
     "web01" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
-        "InstanceType" : "c4.xlarge",
+        "InstanceType" : "t2.micro",
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "c4.xlarge", "Arch" ] } ] },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "web01IP" },
-        "Tags" : [
-            {"Key" : "Name", "Value" : "web01"}
-        ],
-        
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
@@ -160,25 +156,14 @@
                 "#!/bin/bash",
                 "sudo service docker stop",
                 "sudo rm -f /etc/docker/key.json",
-                "sudo service docker start",
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "echo \"IP: ",
-                      {
-                        "Ref": "web01IP"
-                      },
-                      "\n\" >> ~/ip_address.txt"
-                    ]
-                  ]
-                }
+                "sudo service docker start"
               ]
             ]
           }
-        }        
-        
-        
+        },
+        "Tags" : [
+            {"Key" : "Name", "Value" : "web01"}
+        ]
       }
     },
 
@@ -192,11 +177,6 @@
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "worker01IP" },
-        "Tags" : [
-            {"Key" : "Name", "Value" : "worker01"}
-        ],
-        
-        
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
@@ -205,25 +185,14 @@
                 "#!/bin/bash",
                 "sudo service docker stop",
                 "sudo rm -f /etc/docker/key.json",
-                "sudo service docker start",
-                {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "echo \"IP: ",
-                      {
-                        "Ref": "worker01IP"
-                      },
-                      "\n\" >> ~/ip_address.txt"
-                    ]
-                  ]
-                }
+                "sudo service docker start"
               ]
             ]
           }
-        }     
-                
-        
+        },
+        "Tags" : [
+            {"Key" : "Name", "Value" : "worker01"}
+        ]     
       }
     },
 
@@ -242,8 +211,7 @@
         
       }
     }
-    
-    
+
   },
 
   "Outputs" : {
