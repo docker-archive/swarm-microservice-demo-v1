@@ -1,5 +1,11 @@
 #!/bin/sh
 
+###################################################
+#
+# Build instructions; same on AWS and Vagrant
+#
+###################################################
+
 #
 # To build web-vote-app:
 #
@@ -28,12 +34,26 @@ docker -H tcp://192.168.33.21:2375 pull redis
 docker -H tcp://192.168.33.99:2375 pull redis
 
 
+###################################################
+#
+# DNS setup; do this on the machine where your
+# web browser runs
+#
+###################################################
+
 #
 # Point votingapp.local -> interlock
 #
 vi /etc/hosts
 Add this line:
 	192.168.33.11   votingapp.local
+
+
+###################################################
+#
+# Start application containers; same on AWS and Vagrant
+#
+###################################################
 
 #
 # To start Interlock:

@@ -32,9 +32,25 @@
   SG for all:  SG-WideOpen
   All have public IPs.
 
-Note:  to ssh into any machines:
+3.  Now ssh into master using its public IP.  We will do all cluster setup from this machine.  
+
+  Note:  to ssh into any machines:
 	- find the machine's public IP in EC2 dashboard
 	ssh -i ~/.ssh/id_rsa_aws.pem ubuntu@<public IP>
 Replace ~/.ssh/id_rsa_aws.pem with the private key corresponding to the public key you entered in the CloudFormation setup.
 
-3.  Now  we start the various containers:
+
+--- ALL STEPS AFTER THIS POINT DONE FROM MASATER ---
+
+
+4.  Set up Swarm layer containers:
+
+[same as Vagrant/after-reboot.sh in this repo]
+
+5.  Set up application layer containers:
+
+git clone https://github.com/mgoelzer/swarm-demo-voting-app     # (this repo)
+cd swarm-demo-voting-app
+
+Follow instructions in Vagrant/HOWTO.TXT
+
