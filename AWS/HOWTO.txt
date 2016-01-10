@@ -1,0 +1,56 @@
+AWS Setup
+
+0.  Create a VPC
+  Network:  192.168.0.0/16
+  Subnet:  PublicSubnet, 192.168.33.0/24   (after create, make sure to enable "Auto-Assign Public IP" for this subnet)
+  Name:  SwarmCluster
+  
+
+1.  Launch these instances:  
+  AMI for all:  ami-56f59e36
+  SG for all:  SG-WideOpen
+
+  master:     t2.micro / 8GB / no public IP  / 192.168.33.11
+  interlock:  t2.micro / 8GB / YES public IP / 192.168.33.12
+  web01:      t2.micro / 8GB / no public IP / 192.168.33.20
+  redis01:    t2.micro / 8GB / no public IP / 192.168.33.121
+  worker01:   t2.micro / 8GB / no public IP / 192.168.33.200
+  pg:         t2.????	 / ??? GB / YES public IP / 192.168.33.251
+
+2.  To ssh into the machines:
+	- find the machine's public IP in EC2 dashboard
+	ssh -i ~/.ssh/id_rsa_aws.pem ubuntu@<public IP>
+
+3.  How to make Docker base AMI (one time)
+
+	- Started with Ubuntu 14.04 box (ami-56f59e36)
+	- Run these commands:
+	
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+sudo sh -c 'echo "deb https://apt.dockerproject.org/repo ubuntu-trusty main" > /etc/apt/sources.list.d/docker.list'
+sudo apt-get update
+sudo apt-get -y install linux-image-extra-$(uname -r) docker-engine linux-image-generic-lts-utopic
+sudo reboot
+sudo usermod -a -G docker ubuntu   ## add ubuntu user to docker group
+sudo sh -c 'echo DOCKER_OPTS=\"--cluster-store=consul://192.168.33.11:8500 --cluster-advertise=eth0:2375 -H=tcp://0.0.0.0:2375 -H=unix:///var/run/docker.sock\" >> /etc/default/docker'
+sudo service docker restart
+
+Now in AWS console do:  Instances and select your instance -> Actions -> Image -> Create Image
+
+My customized Ubuntu AMI:  ami-bb90e5db
+
+5.  Create CloudFormation template to achieve what is described in Step 1 above, but using "ami-bb90e5db" instead.
+	* Note that you must reset the Engine ID on each node using user-data bash script:
+		sudo service docker stop
+		sudo rm -f /etc/docker/key.json
+		sudo service docker start
+		
+		Should not match:
+		{
+	    "crv": "P-256",
+	    "d": "Jlg9ZRKMZPqxKWohbM2O2bRNklf5K_3HyKI5_vae2f0",
+	    "kid": "JBET:P2QA:ECP3:2JUX:5DXE:UMCX:P5P5:L5FY:XKTZ:ZTDN:BAA7:U3TF",
+	    "kty": "EC",
+	    "x": "xUAchBNX-segN9TRTHV4QfrHIijEzudU1dsum_7H1UE",
+	    "y": "o5Wt4V0VhOIUzrPPS_8CohscohRRvbtWa8hx-eTCO-M"
+		}

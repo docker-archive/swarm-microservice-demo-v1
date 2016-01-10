@@ -1,0 +1,79 @@
+#!/bin/sh
+
+#
+# To build web-vote-app:
+#
+cd web-vote-app
+docker rmi web-vote-app
+docker -H tcp://192.168.33.20:2375 build -t web-vote-app .
+docker -H tcp://192.168.33.21:2375 build -t web-vote-app .
+# [etc... build for each web node because `docker build` on swarm master won't put image on every machine]
+docker -H tcp://192.168.33.99:2375 build -t web-vote-app .
+
+#
+# To build worker:
+#
+cd vote-worker
+docker rmi vote-worker
+docker -H tcp://192.168.33.200:2375 build -t vote-worker .
+docker -H tcp://192.168.33.201:2375 build -t vote-worker .
+# [etc... build for each worker node because `docker build` on swarm master won't put image on every machine]
+docker -H tcp://192.168.33.249:2375 build -t vote-worker .
+
+#
+# To put redis image on each web node:
+#
+docker -H tcp://192.168.33.20:2375 pull redis
+docker -H tcp://192.168.33.21:2375 pull redis
+docker -H tcp://192.168.33.99:2375 pull redis
+
+
+#
+# Point votingapp.local -> interlock
+#
+vi /etc/hosts
+Add this line:
+	192.168.33.11   votingapp.local
+
+#
+# To start Interlock:
+#
+docker -H tcp://192.168.33.11:2375 run -p 80:80 --name interlock -d ehazlett/interlock --swarm-url tcp://192.168.33.11:3375 --plugin haproxy start
+
+#
+# To run web+redis containers:
+#
+export DOCKER_HOST="tcp://192.168.33.11:3375"
+docker run --env="constraint:node==web01" -p 6379:6379 --name redis01 --net mynet -d redis  ## expose 6379 for debugging only!
+docker run --env="constraint:node==web01" -d -p 5000:80 -e WEB_VOTE_NUMBER='01' --name web01 --net mynet --hostname votingapp.local web-vote-app
+#docker run --env="constraint:node==web02" --name redis02 -d redis --net mynet
+#docker run --env="constraint:node==web02" -d -p 5000:80 --name web02 --hostname --net mynet votingapp.local web-vote-app
+
+#
+# To vote, browse to:
+#
+http://votingapp.local
+
+#
+# To verify votes are going into the redis queue:
+#
+redis-cli -h 192.168.33.20
+> llen votes
+> lindex votes 0
+> lindex votes 1
+(etc)
+
+#
+# To view ha_proxy stats, browse to:
+#
+http://stats:interlock@votingapp.local/haproxy?stats
+
+#
+# To start postgres container:
+#
+docker run --env="constraint:node==pg" --name pg -e POSTGRES_PASSWORD=pg8675309 --net mynet -p 5432:5432 -d postgres ## expose 5432 for debugging only
+
+#
+# To start workers:
+#
+docker run --env="constraint:node==worker01" -d -e WORKER_NUMBER='01' -e FROM_REDIS_HOST=1 -e TO_REDIS_HOST=1 --name worker01 --net mynet vote-worker

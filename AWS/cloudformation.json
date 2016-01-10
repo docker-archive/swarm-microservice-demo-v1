@@ -1,0 +1,269 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Swarm Demonstration Cluster Template",
+
+  "Parameters" : {
+    "KeyName": {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Default" : "id_rsa_aws",
+      "ConstraintDescription" : "must be the name of an existing EC2 KeyPair."
+    },
+
+    "VpcId" : {
+      "Type" : "AWS::EC2::VPC::Id",
+      "Description" : "ID of the existing VPC into which all machines will be launched"
+    },
+    
+    "SubnetId" : {
+      "Type" : "AWS::EC2::Subnet::Id",
+      "Description" : "ID of an existing subnet into which all machines will be launched"
+    },
+
+    "web01IP" : {
+      "Description" : "IP of web01",
+      "Type": "String",
+      "MinLength": "7",
+      "MaxLength": "15",
+      "Default": "192.168.33.20",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
+   },
+   
+   "worker01IP" : {
+      "Description" : "IP of worker01",
+      "Type": "String",
+      "MinLength": "7",
+      "MaxLength": "15",
+      "Default": "192.168.33.200",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
+   }
+
+  },
+
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t2.micro"    : { "Arch" : "HVM64"  },
+      "t2.small"    : { "Arch" : "HVM64"  },
+      "t2.medium"   : { "Arch" : "HVM64"  },
+      "t2.large"    : { "Arch" : "HVM64"  },
+      "m3.medium"   : { "Arch" : "HVM64"  },
+      "m3.large"    : { "Arch" : "HVM64"  },
+      "m3.xlarge"   : { "Arch" : "HVM64"  },
+      "m3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.large"    : { "Arch" : "HVM64"  },
+      "c3.xlarge"   : { "Arch" : "HVM64"  },
+      "c3.2xlarge"  : { "Arch" : "HVM64"  },
+      "c3.4xlarge"  : { "Arch" : "HVM64"  },
+      "c3.8xlarge"  : { "Arch" : "HVM64"  },
+      "c4.large"    : { "Arch" : "HVM64"  },
+      "c4.xlarge"   : { "Arch" : "HVM64"  },
+      "c4.2xlarge"  : { "Arch" : "HVM64"  },
+      "c4.4xlarge"  : { "Arch" : "HVM64"  },
+      "c4.8xlarge"  : { "Arch" : "HVM64"  },
+      "g2.2xlarge"  : { "Arch" : "HVMG2"  },
+      "r3.large"    : { "Arch" : "HVM64"  },
+      "r3.xlarge"   : { "Arch" : "HVM64"  },
+      "r3.2xlarge"  : { "Arch" : "HVM64"  },
+      "r3.4xlarge"  : { "Arch" : "HVM64"  },
+      "r3.8xlarge"  : { "Arch" : "HVM64"  },
+      "i2.xlarge"   : { "Arch" : "HVM64"  },
+      "i2.2xlarge"  : { "Arch" : "HVM64"  },
+      "i2.4xlarge"  : { "Arch" : "HVM64"  },
+      "i2.8xlarge"  : { "Arch" : "HVM64"  },
+      "d2.xlarge"   : { "Arch" : "HVM64"  },
+      "d2.2xlarge"  : { "Arch" : "HVM64"  },
+      "d2.4xlarge"  : { "Arch" : "HVM64"  },
+      "d2.8xlarge"  : { "Arch" : "HVM64"  },
+      "hi1.4xlarge" : { "Arch" : "HVM64"  },
+      "hs1.8xlarge" : { "Arch" : "HVM64"  },
+      "cr1.8xlarge" : { "Arch" : "HVM64"  },
+      "cc2.8xlarge" : { "Arch" : "HVM64"  }
+    },
+
+    "AWSInstanceType2NATArch" : {
+      "t2.micro"    : { "Arch" : "NATHVM64"  },
+      "t2.small"    : { "Arch" : "NATHVM64"  },
+      "t2.medium"   : { "Arch" : "NATHVM64"  },
+      "t2.large"    : { "Arch" : "NATHVM64"  },
+      "m3.medium"   : { "Arch" : "NATHVM64"  },
+      "m3.large"    : { "Arch" : "NATHVM64"  },
+      "m3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "m3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "c3.large"    : { "Arch" : "NATHVM64"  },
+      "c3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "c3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "c3.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "c3.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.large"    : { "Arch" : "NATHVM64"  },
+      "c4.xlarge"   : { "Arch" : "NATHVM64"  },
+      "c4.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "c4.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "g2.2xlarge"  : { "Arch" : "NATHVMG2"  },
+      "r3.large"    : { "Arch" : "NATHVM64"  },
+      "r3.xlarge"   : { "Arch" : "NATHVM64"  },
+      "r3.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "r3.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "r3.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "i2.xlarge"   : { "Arch" : "NATHVM64"  },
+      "i2.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "i2.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "i2.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.xlarge"   : { "Arch" : "NATHVM64"  },
+      "d2.2xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.4xlarge"  : { "Arch" : "NATHVM64"  },
+      "d2.8xlarge"  : { "Arch" : "NATHVM64"  },
+      "hi1.4xlarge" : { "Arch" : "NATHVM64"  },
+      "hs1.8xlarge" : { "Arch" : "NATHVM64"  },
+      "cr1.8xlarge" : { "Arch" : "NATHVM64"  },
+      "cc2.8xlarge" : { "Arch" : "NATHVM64"  }
+    }
+,
+    "AWSRegionArch2AMI" : {
+      "us-east-1"        : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "us-west-2"        : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "us-west-1"        : {"HVM64" : "ami-bb90e5db",  "HVMG2" : "ami-bb90e5db"},
+      "eu-west-1"        : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "eu-central-1"     : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-northeast-1"   : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-southeast-1"   : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-southeast-2"   : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "sa-east-1"        : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
+      "cn-north-1"       : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"}
+    }
+
+  },
+
+  "Resources" : {
+    "web01" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "c4.xlarge",
+        "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "c4.xlarge", "Arch" ] } ] },
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "PrivateIpAddress" : { "Ref" : "web01IP" },
+        "Tags" : [
+            {"Key" : "Name", "Value" : "web01"}
+        ],
+        
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash",
+                "sudo service docker stop",
+                "sudo rm -f /etc/docker/key.json",
+                "sudo service docker start",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "echo \"IP: ",
+                      {
+                        "Ref": "web01IP"
+                      },
+                      "\n\" >> ~/ip_address.txt"
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        }        
+        
+        
+      }
+    },
+
+    "worker01" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } ] },
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "PrivateIpAddress" : { "Ref" : "worker01IP" },
+        "Tags" : [
+            {"Key" : "Name", "Value" : "worker01"}
+        ],
+        
+        
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash",
+                "sudo service docker stop",
+                "sudo rm -f /etc/docker/key.json",
+                "sudo service docker start",
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "echo \"IP: ",
+                      {
+                        "Ref": "worker01IP"
+                      },
+                      "\n\" >> ~/ip_address.txt"
+                    ]
+                  ]
+                }
+              ]
+            ]
+          }
+        }     
+                
+        
+      }
+    },
+
+    "WideOpenVpcSG" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VpcId" } ,
+        "GroupDescription" : "Wide open",
+        
+        "SecurityGroupIngress" : [ {
+          "IpProtocol" : "tcp",
+          "FromPort" : "0",
+          "ToPort" : "65535",
+          "CidrIp" : "0.0.0.0/0"
+        } ]
+        
+      }
+    }
+    
+    
+  },
+
+  "Outputs" : {
+    "Web01InstanceId" : {
+      "Description" : "InstanceId of web01",
+      "Value" : { "Ref" : "web01" }
+    },
+    "web01PrivateIP" : {
+      "Description" : "Private IP of web01",
+      "Value" : { "Fn::GetAtt" : [ "web01", "PrivateIp" ] }
+    },
+    
+    "Worker01InstanceId" : {
+      "Description" : "InstanceId of worker1",
+      "Value" : { "Ref" : "worker01" }
+    },
+    "worker01PrivateIP" : {
+      "Description" : "Private IP of worker01",
+      "Value" : { "Fn::GetAtt" : [ "worker01", "PrivateIp" ] }
+    }
+    
+  }
+}
