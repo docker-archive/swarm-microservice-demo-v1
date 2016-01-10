@@ -42,23 +42,35 @@ docker -H tcp://192.168.33.99:2375 pull redis
 ###################################################
 
 #
-# Point votingapp.local -> interlock
+# Vagrant:  point votingapp.local -> interlock on .11
 #
 vi /etc/hosts
 Add this line:
 	192.168.33.11   votingapp.local
 
+#
+# AWS:  point votingapp.local -> public IP of interlock (found in Outputs tab of CloudFormation)
+#
+vi /etc/hosts
+Add this line:
+	<public IP of interlock>   votingapp.local
+
 
 ###################################################
 #
-# Start application containers; same on AWS and Vagrant
+# Start application containers
 #
 ###################################################
 
 #
-# To start Interlock:
+# Vagrant:  start Interlock on on .11 (which is shares with master):
 #
 docker -H tcp://192.168.33.11:2375 run -p 80:80 --name interlock -d ehazlett/interlock --swarm-url tcp://192.168.33.11:3375 --plugin haproxy start
+
+#
+# AWS:  start Interlock on dedicated machine .12 (but listening to swarm master on .11):
+#
+docker -H tcp://192.168.33.12:2375 run -p 80:80 --name interlock -d ehazlett/interlock --swarm-url tcp://192.168.33.11:3375 --plugin haproxy start
 
 #
 # To run web+redis containers:
