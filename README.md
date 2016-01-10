@@ -4,7 +4,7 @@ This is a sample Swarm cluster that illustrates how Swarm can be used as the fou
 
 # Architecture
 
-An Interlock load balancer (ha\_proxy plugin) sits in front of N web containers, each of which runs a simple Python (Flask) app that accepts votes and queues them into a redis container on the same node.  These N web+redis containers capture votes quickly.  By scaling up N, any level of expected traffic can be accomodated.  
+An Interlock load balancer (ha\_proxy plugin) sits in front of N web containers, each of which runs a simple Python (Flask) app that accepts votes and queues them into a redis container on the same node.  These N web+redis nodes capture votes quickly.  By scaling up N, any level of expected traffic can be accomodated.  
 
 Asynchronously, M background workers running on separate nodes scan through those N redis containers, dequeueing votes, de-duplicating them (to prevent double voting) and committing the results to a single postgres container that runs on its own node.
 
