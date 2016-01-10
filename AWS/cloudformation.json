@@ -116,7 +116,8 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } ] },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                        ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "web01IP" },
         "UserData": {
@@ -145,7 +146,8 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } ] },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                        ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "worker01IP" },
         "UserData": {
@@ -174,7 +176,8 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } ] },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                        ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "pgIP" },
         "UserData": {
