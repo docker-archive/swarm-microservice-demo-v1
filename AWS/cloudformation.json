@@ -50,7 +50,17 @@
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
       "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
    },
-   
+
+   "web02IP" : {
+      "Description" : "IP of web02",
+      "Type": "String",
+      "MinLength": "7",
+      "MaxLength": "15",
+      "Default": "192.168.33.21",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
+      "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
+   },
+
    "worker01IP" : {
       "Description" : "IP of worker01",
       "Type": "String",
@@ -223,6 +233,37 @@
         ]
       }
     },
+    
+    "web02" : {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
+        "KeyName" : { "Ref" : "KeyName" },
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                        ] },
+        "SubnetId" : { "Ref" : "SubnetId" },
+        "PrivateIpAddress" : { "Ref" : "web02IP" },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "\n",
+              [
+                "#!/bin/bash",
+                "sudo hostname web02",
+                "sudo service docker stop",
+                "sudo rm -f /etc/docker/key.json",
+                "sudo service docker start"
+              ]
+            ]
+          }
+        },
+        "Tags" : [
+            {"Key" : "Name", "Value" : "web02"}
+        ]
+      }
+    },
 
     "worker01" : {
       "Type" : "AWS::EC2::Instance",
@@ -333,6 +374,15 @@
       "Description" : "Public IP of web01",
       "Value" : { "Fn::GetAtt" : [ "web01", "PublicIp" ] }
     },    
+
+    "web02PrivateIP" : {
+      "Description" : "Private IP of web02",
+      "Value" : { "Fn::GetAtt" : [ "web02", "PrivateIp" ] }
+    },    
+    "web02PublicIP" : {
+      "Description" : "Public IP of web02",
+      "Value" : { "Fn::GetAtt" : [ "web02", "PublicIp" ] }
+    },
 
     "worker01PrivateIP" : {
       "Description" : "Private IP of worker01",

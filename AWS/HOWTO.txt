@@ -24,7 +24,7 @@
   master:     t2.micro  / 192.168.33.11
   interlock:  t2.micro  / 192.168.33.12
   web01:      t2.micro  / 192.168.33.20
-  redis01:    t2.micro  / 192.168.33.121
+  web02:      t2.micro  / 192.168.33.21
   worker01:   t2.micro  / 192.168.33.200
   pg:         m3.medium	/ 192.168.33.250
 
