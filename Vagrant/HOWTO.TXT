@@ -34,6 +34,11 @@ docker -H tcp://192.168.33.21:2375 pull redis
 # [etc... for each web+redis node]
 docker -H tcp://192.168.33.99:2375 pull redis
 
+#
+# To build results-app (which runs on pg machine)
+#
+docker -H tcp://192.168.33.250:2375 build -t results-app .
+
 
 ###################################################
 #
@@ -111,12 +116,9 @@ docker run --env="constraint:node==pg" --name pg -e POSTGRES_PASSWORD=pg8675309 
 
 And count votes like this:
 
-PGPASSWORD=pg8675309 /Applications/Postgres.app/Contents/Versions/9.5/bin/psql -p5432 -h 192.168.33.251 -U postgres -d postgres 
-postgres=# select * from votes;
-  id               | vote 
-  -----------------+------
-  cc0f317dfbb594ab | b
-  (1 row)
+PSQL=/Applications/Postgres.app/Contents/Versions/9.5/bin/psql
+PGPASSWORD=pg8675309 $PSQL -p5432 -h 192.168.33.251 -U postgres -d postgres 
+#[and query like:  SELECT * FROM votes;]
 
 
 #
@@ -124,4 +126,9 @@ postgres=# select * from votes;
 #
 docker run --env="constraint:node==worker01" -d -e WORKER_NUMBER='01' -e FROM_REDIS_HOST=1 -e TO_REDIS_HOST=2 --name worker01 --net mynet vote-worker
 #[etc... for each worker]
+
+#
+# To start results app
+#
+docker run --env="constraint:node==pg" -p 80:80 -d --name results-app --net mynet results-app
 
