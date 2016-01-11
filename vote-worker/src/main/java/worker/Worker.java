@@ -7,26 +7,18 @@ import org.json.JSONObject;
 import java.util.Map;
 
 class Worker {
-  // TODO:  current just reads FROM_REDIS_HOST, and returns only that.
-  // Should read FROM_REDIS_HOST and TO_REDIS_HOST and return an array
-  // of "redisNN" hostnames that main program can loop through sequentially
-  // reading all the votes.
-  public static String getRedisQueueHostname() throws Exception {
-    String fromRedisHost = "";
+  public static String[] getRedisQueueHostnames() throws Exception {
     boolean bFoundFromRedisHost = false;
     boolean bFoundToRedisHost = false;
-    int nfromRedisHost;
+    int nfromRedisHost = 0, ntoRedisHost = 0;
     Map<String, String> env = System.getenv();
     for (String envName : env.keySet()) {
-       //System.out.format("%s=%s%n", envName, env.get(envName));
        if (envName.equals("FROM_REDIS_HOST")) {
-	 //System.out.format("FROM_REDIS_HOST = '%s'\n", env.get("FROM_REDIS_HOST"));
 	 bFoundFromRedisHost = true;
          nfromRedisHost = Integer.parseInt(env.get("FROM_REDIS_HOST"));
-	 fromRedisHost = String.format("redis%02d", nfromRedisHost);
        }
        if (envName.equals("TO_REDIS_HOST")) {
-	 //System.out.format("TO_REDIS_HOST = '%s'\n", env.get("TO_REDIS_HOST"));
+         ntoRedisHost = Integer.parseInt(env.get("TO_REDIS_HOST"));
 	 bFoundToRedisHost = true;
        }
     }
@@ -36,26 +28,45 @@ class Worker {
     if (!bFoundToRedisHost) {
       throw new Exception("Abort:  no TO_REDIS_HOST environment variable");
     }
-    System.err.println("Warning:  Ignoring TO_REDIS_HOST for now, reading only from " + fromRedisHost);
-    return fromRedisHost;
+    if (nfromRedisHost > ntoRedisHost) {
+      throw new Exception("Abort:  no FROM_REDIS_HOST must be <= TO_REDIS_HOST");
+    }
+    String[] retArr = new String[ntoRedisHost-nfromRedisHost+1];
+    for (int i = nfromRedisHost; i <= ntoRedisHost; i++) {
+      String redisHost = String.format("redis%02d", i);
+      retArr[i-nfromRedisHost] = redisHost;
+    }
+    return retArr;
   }
   public static void main(String[] args) {
 
     try {
-      String fromRedisHost = getRedisQueueHostname();
-      Jedis redis = connectToRedis(fromRedisHost);
+      String[] redisHosts = getRedisQueueHostnames();
+      System.err.printf("%d redis hosts\n", redisHosts.length);
+      for (int i = 0; i < redisHosts.length; i++) {
+	System.err.printf("  redisHosts[%d] = '%s'\n", i, redisHosts[i]);
+      }
+
+      Jedis[] redisArr = new Jedis[redisHosts.length];
+      for (int i = 0; i < redisHosts.length; i++) {
+        redisArr[i] = connectToRedis(redisHosts[i]);
+      }
+
       Connection dbConn = connectToDB("pg");
 
       System.err.println("Watching vote queue");
 
       while (true) {
-        String voteJSON = redis.blpop(0, "votes").get(1);
-        JSONObject voteData = new JSONObject(voteJSON);
-        String voterID = voteData.getString("voter_id");
-        String vote = voteData.getString("vote");
+	for (int i = 0; i < redisArr.length; i++) {
+	  Jedis redis = redisArr[i];
+          String voteJSON = redis.blpop(0, "votes").get(1);
+          JSONObject voteData = new JSONObject(voteJSON);
+          String voterID = voteData.getString("voter_id");
+          String vote = voteData.getString("vote");
 
-        System.err.printf("Processing vote for '%s' by '%s'\n", vote, voterID);
-        updateVote(dbConn, voterID, vote);
+          System.err.printf("Processing vote for '%s' by '%s'\n", vote, voterID);
+          updateVote(dbConn, voterID, vote);
+	}
       }
     } catch (SQLException e) {
       e.printStackTrace();
