@@ -10,6 +10,8 @@ Asynchronously, M background workers running on separate nodes scan through thos
 
 ![Cluster Diagram](https://raw.githubusercontent.com/mgoelzer/swarm-demo-voting-app/master/cluster.png)
 
+(Detailed cluster diagram with port numbers in `./cluster-detailed.png`)
+
 # Usage
 
 This cluster can be deployed on either Vagrant and AWS.  A CloudFormation template (for AWS) and a Vangrantfile (for Vagrant) are included.
