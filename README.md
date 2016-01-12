@@ -25,8 +25,11 @@ For Vagrant deployment:  start at `Vagrant/HOWTO.TXT`, again following the point
 # TODO
 
 Some details we need to finish up:
+
 1.  Deploy with a docker-compose.yml (based on the various `docker run` and `docker build` lines in `Vagrant/HOWTO.TXT`)
+
 2.  Remove Engine's key.json and make a new AMI.  Then we can simplify the Cloudformation template to remove the docker daemon restart lines in UserData
+
 3.  Document of suggest as "extra credit":
   * There is a race condition with vote changes going into separate queues and workers not being able to know which came first.
   * Possible fixes:  don't allow them to change vote; timestamp each vote and enforce a 1 second delay between vote changes so that we can be sure we are only counting the user's "latest" vote.
