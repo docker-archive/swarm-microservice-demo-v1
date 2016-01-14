@@ -71,23 +71,23 @@ Add this line:
 #
 # Vagrant:  start Interlock on on .11 (which is shares with master):
 #
-docker -H tcp://192.168.33.11:2375 run -p 80:80 --name interlock -d ehazlett/interlock --swarm-url tcp://192.168.33.11:3375 --plugin haproxy start
+docker -H tcp://192.168.33.11:2375 run --restart=unless-stopped -p 80:80 --name interlock -d ehazlett/interlock --swarm-url tcp://192.168.33.11:3375 --plugin haproxy start
 
 #
 # AWS:  start Interlock on dedicated machine .12 (but listening to swarm master on .11):
 #
-docker -H tcp://192.168.33.12:2375 run -p 80:80 --name interlock -d ehazlett/interlock --swarm-url tcp://192.168.33.11:3375 --plugin haproxy start
+docker -H tcp://192.168.33.12:2375 run --restart=unless-stopped -p 80:80 --name interlock -d ehazlett/interlock --swarm-url tcp://192.168.33.11:3375 --plugin haproxy start
 
 #
 # To run web+redis containers:
 #
 export DOCKER_HOST="tcp://192.168.33.11:3375"
 
-docker run --env="constraint:node==web01" -p 6379:6379 --name redis01 --net mynet -d redis  ## expose 6379 for debugging only!
-docker run --env="constraint:node==web01" -d -p 5000:80 -e WEB_VOTE_NUMBER='01' --name web01 --net mynet --hostname votingapp.local web-vote-app
+docker run --restart=unless-stopped --env="constraint:node==web01" -p 6379:6379 --name redis01 --net mynet -d redis  ## expose 6379 for debugging only!
+docker run --restart=unless-stopped --env="constraint:node==web01" -d -p 5000:80 -e WEB_VOTE_NUMBER='01' --name web01 --net mynet --hostname votingapp.local web-vote-app
 
-docker run --env="constraint:node==web02" -p 6379:6379 --name redis02 --net mynet -d redis  ## expose 6379 for debugging only!
-docker run --env="constraint:node==web02" -d -p 5000:80 -e WEB_VOTE_NUMBER='02' --name web02 --net mynet --hostname votingapp.local web-vote-app
+docker run --restart=unless-stopped --env="constraint:node==web02" -p 6379:6379 --name redis02 --net mynet -d redis  ## expose 6379 for debugging only!
+docker run --restart=unless-stopped --env="constraint:node==web02" -d -p 5000:80 -e WEB_VOTE_NUMBER='02' --name web02 --net mynet --hostname votingapp.local web-vote-app
 # [etc... for each web+redis node]
 
 #
@@ -112,7 +112,7 @@ http://stats:interlock@votingapp.local/haproxy?stats
 #
 # To start postgres container:
 #
-docker run --env="constraint:node==pg" --name pg -e POSTGRES_PASSWORD=pg8675309 --net mynet -p 5432:5432 -d postgres ## expose 5432 for debugging only
+docker run --restart=unless-stopped --env="constraint:node==pg" --name pg -e POSTGRES_PASSWORD=pg8675309 --net mynet -p 5432:5432 -d postgres ## expose 5432 for debugging only
 
 And count votes like this:
 
@@ -124,11 +124,11 @@ PGPASSWORD=pg8675309 $PSQL -p5432 -h 192.168.33.251 -U postgres -d postgres
 #
 # To start workers:
 #
-docker run --env="constraint:node==worker01" -d -e WORKER_NUMBER='01' -e FROM_REDIS_HOST=1 -e TO_REDIS_HOST=2 --name worker01 --net mynet vote-worker
+docker run --restart=unless-stopped --env="constraint:node==worker01" -d -e WORKER_NUMBER='01' -e FROM_REDIS_HOST=1 -e TO_REDIS_HOST=2 --name worker01 --net mynet vote-worker
 #[etc... for each worker]
 
 #
 # To start results app
 #
-docker run --env="constraint:node==pg" -p 80:80 -d --name results-app --net mynet results-app
+docker run --restart=unless-stopped --env="constraint:node==pg" -p 80:80 -d --name results-app --net mynet results-app
 
