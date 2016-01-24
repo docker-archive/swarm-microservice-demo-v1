@@ -1,0 +1,19 @@
+web-vote-app:
+  build: web-vote-app
+  ports:
+    - "80"
+vote-worker:
+  build: vote-worker
+  ports:
+    - "80"
+results-app:
+  build: results-app
+  ports:
+    - "80"
+redis:
+  image: redis
+pg:
+  image: postgres
+  environment:
+    - POSTGRES_USER=postgres
+    - POSTGRES_PASSWORD=pg8675309
