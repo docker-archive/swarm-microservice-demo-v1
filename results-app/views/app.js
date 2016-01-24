@@ -16,12 +16,20 @@ app.controller('statsCtrl', function($scope){
 
   $scope.aPercent = 50;
   $scope.bPercent = 50;
+  $scope.allVotes = [];
 
   var updateScores = function(){
     socket.on('scores', function (json) {
        data = JSON.parse(json);
        var a = parseInt(data.a || 0);
        var b = parseInt(data.b || 0);
+       var allVotesArr = data.allVotesArr;
+
+       $scope.allVotes = [];
+       for(var i = 0; i<allVotesArr.length; i++) {
+         var elem = { ts:allVotesArr[i].ts, vote:allVotesArr[i].vote, id:allVotesArr[i].id };
+         $scope.allVotes.push( elem );
+       }
 
        animateStats(a, b);
 

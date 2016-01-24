@@ -28,10 +28,18 @@
             <div class="label">Dogs</div>
             <div class="stat">{{bPercent | number:1}}%</div>
           </div>
+
         </div>
       </div>
     </div>
-    <div id="result" ng-if="total > 100">
+    <div id="all-votes">
+      <ul>
+      <li ng-repeat="x in allVotes">
+      {{ x.ts + ':  ' + x.id + ' voted for \'' + (x.vote=='a'?'Cats':'Dogs') + '\'' }}
+      </li>
+      </ul>
+    </div>
+    <div id="result" ng-if="total > 0">
       {{total}} votes
     </div>
     <script src="socket.io.js"></script>

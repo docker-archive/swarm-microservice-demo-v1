@@ -7,6 +7,7 @@ import os
 import socket
 import random
 import json
+import time
 
 option_a = os.getenv('OPTION_A', "Cats")
 option_b = os.getenv('OPTION_B', "Dogs")
@@ -37,7 +38,8 @@ def index():
 
     if request.method == 'POST':
         vote = request.form['vote']
-        data = json.dumps({'voter_id': voter_id, 'vote': vote})
+	epoch_time_ms = long(time.time()*1000)
+	data = json.dumps({'voter_id': voter_id, 'vote': vote, 'ts': epoch_time_ms})
         redis.rpush('votes', data)
 
     resp = make_response(render_template(

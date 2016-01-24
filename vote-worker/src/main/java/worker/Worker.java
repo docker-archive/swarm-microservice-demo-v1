@@ -63,9 +63,9 @@ class Worker {
           JSONObject voteData = new JSONObject(voteJSON);
           String voterID = voteData.getString("voter_id");
           String vote = voteData.getString("vote");
-
-          System.err.printf("Processing vote for '%s' by '%s'\n", vote, voterID);
-          updateVote(dbConn, voterID, vote);
+	  long epochMillis = voteData.getLong("ts");
+          System.err.printf("Processing vote for '%s' by '%s' from '%d':  ", vote, voterID, epochMillis);
+          updateVote(dbConn, voterID, vote, epochMillis);
 	}
       }
     } catch (SQLException e) {
@@ -77,20 +77,26 @@ class Worker {
     }
   }
 
-  static void updateVote(Connection dbConn, String voterID, String vote) throws SQLException {
+  static void updateVote(Connection dbConn, String voterID, String vote, long epochMillis) throws SQLException {
+    Timestamp ts = new Timestamp(epochMillis);
+
     PreparedStatement insert = dbConn.prepareStatement(
-      "INSERT INTO votes (id, vote) VALUES (?, ?)");
+      "INSERT INTO votes (id, vote, ts) VALUES (?, ?, ?)");
     insert.setString(1, voterID);
     insert.setString(2, vote);
+    insert.setTimestamp(3, ts);
 
     try {
       insert.executeUpdate();
+      System.err.printf("successful insert for '%s'\n", voterID);
     } catch (SQLException e) {
       PreparedStatement update = dbConn.prepareStatement(
-        "UPDATE votes SET vote = ? WHERE id = ?");
+        "UPDATE votes SET vote = ? WHERE id = ? AND ts < ?");
       update.setString(1, vote);
       update.setString(2, voterID);
-      update.executeUpdate();
+      update.setTimestamp(3, ts);
+      int rowsAffected = update.executeUpdate();
+      System.err.printf("%d rows updated for '%s'\n", rowsAffected, voterID);
     }
   }
 
@@ -132,7 +138,7 @@ class Worker {
       }
 
       PreparedStatement st = conn.prepareStatement(
-        "CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL)");
+        "CREATE TABLE IF NOT EXISTS votes (id VARCHAR(255) NOT NULL UNIQUE, vote VARCHAR(255) NOT NULL, ts TIMESTAMP DEFAULT NOW())");
       st.executeUpdate();
 
     } catch (ClassNotFoundException e) {
