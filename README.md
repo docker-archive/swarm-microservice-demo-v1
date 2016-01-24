@@ -31,8 +31,3 @@ Some details we need to finish up:
 1.  Deploy with a docker-compose.yml (based on the various `docker run` and `docker build` lines in `Vagrant/HOWTO.TXT`)
 
 2.  Remove Engine's key.json and make a new AMI.  Then we can simplify the Cloudformation template to remove the docker daemon restart lines in UserData
-
-3.  Document of suggest as "extra credit":
-  * There is a race condition with vote changes going into separate queues and workers not being able to know which came first.
-  * Possible fixes:  don't allow them to change vote; timestamp each vote and enforce a 1 second delay between vote changes so that we can be sure we are only counting the user's "latest" vote.
-  * For timestamp solution, all nodes need to sync clocks to a central time server (easiest) or someone needs to track their drift (harder).  For this simple example, we can just have host AMI sync'ing to `[0-3].us.pool.ntp.org`
