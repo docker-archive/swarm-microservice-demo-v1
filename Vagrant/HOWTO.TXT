@@ -116,7 +116,7 @@ docker run --restart=unless-stopped --env="constraint:node==pg" --name pg -e POS
 
 And count votes like this:
 
-PSQL=/Applications/Postgres.app/Contents/Versions/9.5/bin/psql
+export PSQL=/Applications/Postgres.app/Contents/Versions/9.5/bin/psql
 PGPASSWORD=pg8675309 $PSQL -p5432 -h 192.168.33.251 -U postgres -d postgres 
 #[and query like:  SELECT * FROM votes;]
 
