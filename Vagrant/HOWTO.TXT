@@ -37,7 +37,7 @@ docker -H tcp://192.168.33.99:2375 pull redis
 #
 # To build results-app (which runs on pg machine)
 #
-docker -H tcp://192.168.33.250:2375 build -t results-app .
+docker -H tcp://192.168.33.251:2375 build -t results-app .
 
 
 ###################################################
