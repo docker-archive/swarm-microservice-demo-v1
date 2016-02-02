@@ -1,0 +1,16 @@
+#
+# docker-compose.override.yml provides settings for local development
+#
+
+version: 2
+
+services:
+  web-vote-app:
+    ports: ['8081:80']
+
+  results-app:
+    ports: ['8082:80']
+
+  redis01:
+    ports: ["6379:6379"]
+
