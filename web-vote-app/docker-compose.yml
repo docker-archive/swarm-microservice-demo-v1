@@ -15,6 +15,7 @@ services:
       - "5000:80"
     environment:
       - WEB_VOTE_NUMBER="01"
+      - constraint:node="web01"
     hostname: votingapp.local
   redis01:
     image: redis

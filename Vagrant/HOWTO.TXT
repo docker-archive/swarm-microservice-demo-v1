@@ -17,6 +17,13 @@ docker -H tcp://192.168.33.21:2375 build -t web-vote-app .
 docker -H tcp://192.168.33.99:2375 build -t web-vote-app .
 
 #
+# Alternative:  build once and push to Docker Hub
+#
+docker -H tcp://192.168.33.20:2375 build -t mikegoelzer/web-vote-app .
+docker -H tcp://192.168.33.20:2375 login -u mikegoelzer
+docker -H tcp://192.168.33.20:2375 push mikegoelzer/web-vote-app
+
+#
 # To build worker:
 #
 cd vote-worker
