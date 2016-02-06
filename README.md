@@ -1,4 +1,4 @@
-# Swarm Example Cluster:  Web App
+# Swarm Example Cluster:  Microservices App
 
 This is a sample Swarm cluster that illustrates how Swarm can be used as the foundation for a high-traffic microservice-architecture web application.  It is based on the Docker Cats-vs-Dogs voting example application, but re-architected to accomodate arbitrarily large scale through the use of parallel vote capture frontends and asynchronous background workers processing each vote.
 
@@ -23,11 +23,3 @@ This cluster can be deployed on either Vagrant and AWS.  A CloudFormation templa
 For AWS deployment:  start at `AWS/HOWTO.TXT`, which will guide you through other text files documenting the various steps to set up the cluster and the application on AWS.
 
 For Vagrant deployment:  start at `Vagrant/HOWTO.TXT`, again following the pointers to other text files and scripts.
-
-# TODO
-
-Some details we need to finish up:
-
-1.  Deploy with a docker-compose.yml (based on the various `docker run` and `docker build` lines in `Vagrant/HOWTO.TXT`)
-
-2.  Remove Engine's key.json and make a new AMI.  Then we can simplify the Cloudformation template to remove the docker daemon restart lines in UserData
