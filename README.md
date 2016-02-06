@@ -12,8 +12,7 @@ An Interlock load balancer (ha\_proxy plugin) sits in front of N web containers,
 
 Asynchronously, M background workers running on separate nodes scan through those N redis containers, dequeueing votes, de-duplicating them (to prevent double voting) and committing the results to a single postgres container that runs on its own node.
 
-![Cluster Diagram](https://raw.githubusercontent.com/mgoelzer/swarm-demo-voting-app/master/cluster.png)
-![Cluster Diagram](https://raw.githubusercontent.com/mgoelzer/swarm-microservice-demo-v1/master/cluster.png)
+![Cluster Diagram](https://raw.githubusercontent.com/docker/swarm-microservice-demo-v1/master/cluster.png)
 
 (Detailed cluster diagram with port numbers in `./cluster-detailed.png`)
 
