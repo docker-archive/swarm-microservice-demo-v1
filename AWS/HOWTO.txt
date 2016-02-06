@@ -49,8 +49,8 @@ Replace ~/.ssh/id_rsa_aws.pem with the private key corresponding to the public k
 
 5.  Set up application layer containers:
 
-git clone https://github.com/mgoelzer/swarm-demo-voting-app     # (this repo)
-cd swarm-demo-voting-app
+git clone https://github.com/docker/swarm-microservice-demo-v1     # (this repo)
+cd swarm-microservice-demo-v1
 
 Follow instructions in Vagrant/HOWTO.TXT
 
