@@ -9,7 +9,7 @@ services:
     build: web-vote-app
     environment:
       WEB_VOTE_NUMBER: "01"
-      constraint:node: "=web01"
+      constraint:node: "=frontend01"
 
   vote-worker:
     build: vote-worker
@@ -23,7 +23,7 @@ services:
   redis01:
     image: redis:3
 
-  pg:
+  store:
     image: postgres:9.5
     environment:
       - POSTGRES_USER=postgres

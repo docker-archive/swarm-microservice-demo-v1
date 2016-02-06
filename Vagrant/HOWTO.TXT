@@ -42,7 +42,7 @@ docker -H tcp://192.168.33.21:2375 pull redis
 docker -H tcp://192.168.33.99:2375 pull redis
 
 #
-# To build results-app (which runs on pg machine)
+# To build results-app (which runs on store machine)
 #
 docker -H tcp://192.168.33.251:2375 build -t results-app .
 
@@ -90,11 +90,11 @@ docker -H tcp://192.168.33.12:2375 run --restart=unless-stopped -p 80:80 --name 
 #
 export DOCKER_HOST="tcp://192.168.33.11:3375"
 
-docker run --restart=unless-stopped --env="constraint:node==web01" -p 6379:6379 --name redis01 --net mynet -d redis  ## expose 6379 for debugging only!
-docker run --restart=unless-stopped --env="constraint:node==web01" -d -p 5000:80 -e WEB_VOTE_NUMBER='01' --name web01 --net mynet --hostname votingapp.local web-vote-app
+docker run --restart=unless-stopped --env="constraint:node==frontend01" -p 6379:6379 --name redis01 --net mynet -d redis  ## expose 6379 for debugging only!
+docker run --restart=unless-stopped --env="constraint:node==frontend01" -d -p 5000:80 -e WEB_VOTE_NUMBER='01' --name frontend01 --net mynet --hostname votingapp.local web-vote-app
 
-docker run --restart=unless-stopped --env="constraint:node==web02" -p 6379:6379 --name redis02 --net mynet -d redis  ## expose 6379 for debugging only!
-docker run --restart=unless-stopped --env="constraint:node==web02" -d -p 5000:80 -e WEB_VOTE_NUMBER='02' --name web02 --net mynet --hostname votingapp.local web-vote-app
+docker run --restart=unless-stopped --env="constraint:node==frontend02" -p 6379:6379 --name redis02 --net mynet -d redis  ## expose 6379 for debugging only!
+docker run --restart=unless-stopped --env="constraint:node==frontend02" -d -p 5000:80 -e WEB_VOTE_NUMBER='02' --name frontend02 --net mynet --hostname votingapp.local web-vote-app
 # [etc... for each web+redis node]
 
 #
@@ -119,7 +119,7 @@ http://stats:interlock@votingapp.local/haproxy?stats
 #
 # To start postgres container:
 #
-docker run --restart=unless-stopped --env="constraint:node==pg" --name pg -e POSTGRES_PASSWORD=pg8675309 --net mynet -p 5432:5432 -d postgres ## expose 5432 for debugging only
+docker run --restart=unless-stopped --env="constraint:node==store" --name store -e POSTGRES_PASSWORD=pg8675309 --net mynet -p 5432:5432 -d postgres ## expose 5432 for debugging only
 
 And count votes like this:
 
@@ -137,5 +137,5 @@ docker run --restart=unless-stopped --env="constraint:node==worker01" -d -e WORK
 #
 # To start results app
 #
-docker run --restart=unless-stopped --env="constraint:node==pg" -p 80:80 -d --name results-app --net mynet results-app
+docker run --restart=unless-stopped --env="constraint:node==store" -p 80:80 -d --name results-app --net mynet results-app
 

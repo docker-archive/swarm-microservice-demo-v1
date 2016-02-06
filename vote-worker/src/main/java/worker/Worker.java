@@ -52,7 +52,7 @@ class Worker {
         redisArr[i] = connectToRedis(redisHosts[i]);
       }
 
-      Connection dbConn = connectToDB("pg");
+      Connection dbConn = connectToDB("store");
 
       System.err.println("Watching vote queue");
 

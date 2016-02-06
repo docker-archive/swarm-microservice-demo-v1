@@ -1,6 +1,6 @@
 var express = require('express'),
     async = require('async'),
-    pg = require("pg"),
+    pg = require("store"),
     cookieParser = require('cookie-parser'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
