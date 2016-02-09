@@ -2,7 +2,7 @@
 # docker-compose.override.yml provides settings for local development
 #
 
-version: 2
+version: '2'
 
 services:
   web-vote-app:
