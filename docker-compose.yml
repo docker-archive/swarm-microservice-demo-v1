@@ -2,7 +2,7 @@
 # Compose file to run the voting app and dependent services
 #
 
-version: 2
+version: '2'
 
 services:
   web-vote-app:
