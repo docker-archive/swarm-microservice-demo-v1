@@ -15,14 +15,14 @@
       "Type" : "AWS::EC2::VPC::Id",
       "Description" : "ID of the existing VPC into which all machines will be launched"
     },
-    
+
     "SubnetId" : {
       "Type" : "AWS::EC2::Subnet::Id",
       "Description" : "ID of an existing subnet into which all machines will be launched"
     },
-    
-    "masterIP" : {
-      "Description" : "IP of master (where Swarm Manager and consul kv run)",
+
+    "managerIP" : {
+      "Description" : "IP of manager (where Swarm Manager and consul kv run)",
       "Type": "String",
       "MinLength": "7",
       "MaxLength": "15",
@@ -80,7 +80,7 @@
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})",
       "ConstraintDescription": "must be a valid IP of the form x.x.x.x"
    }
-   
+
   },
 
   "Mappings" : {
@@ -139,25 +139,25 @@
   },
 
   "Resources" : {
-  
-    "master" : {
+
+    "manager" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
         "InstanceType" : "t2.micro",
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] }
                                         ] },
         "SubnetId" : { "Ref" : "SubnetId" },
-        "PrivateIpAddress" : { "Ref" : "masterIP" },
+        "PrivateIpAddress" : { "Ref" : "managerIP" },
         "UserData": {
           "Fn::Base64": {
             "Fn::Join": [
               "\n",
               [
                 "#!/bin/bash",
-                "sudo hostname master",
+                "sudo hostname manager",
                 "sudo service docker stop",
                 "sudo rm -f /etc/docker/key.json",
                 "sudo service docker start"
@@ -166,7 +166,7 @@
           }
         },
         "Tags" : [
-            {"Key" : "Name", "Value" : "master"}
+            {"Key" : "Name", "Value" : "manager"}
         ]
       }
     },
@@ -178,7 +178,7 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] }
                                         ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "interlockIP" },
@@ -202,7 +202,7 @@
       }
     },
 
-  
+
     "frontend01" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
@@ -210,7 +210,7 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] }
                                         ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "frontend01IP" },
@@ -233,7 +233,7 @@
         ]
       }
     },
-    
+
     "frontend02" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
@@ -241,7 +241,7 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] }
                                         ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "frontend02IP" },
@@ -272,7 +272,7 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] } 
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "t2.micro", "Arch" ] }
                                         ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "worker01IP" },
@@ -292,10 +292,10 @@
         },
         "Tags" : [
             {"Key" : "Name", "Value" : "worker01"}
-        ]     
+        ]
       }
     },
-    
+
     "store" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
@@ -303,7 +303,7 @@
         "SecurityGroupIds" : [ { "Ref" : "WideOpenVpcSG" } ],
         "KeyName" : { "Ref" : "KeyName" },
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
-                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "m3.medium", "Arch" ] } 
+                                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", "m3.medium", "Arch" ] }
                                         ] },
         "SubnetId" : { "Ref" : "SubnetId" },
         "PrivateIpAddress" : { "Ref" : "storeIP" },
@@ -323,7 +323,7 @@
         },
         "Tags" : [
             {"Key" : "Name", "Value" : "store"}
-        ]     
+        ]
       }
     },
 
@@ -332,53 +332,53 @@
       "Properties" : {
         "VpcId" : { "Ref" : "VpcId" } ,
         "GroupDescription" : "Wide open",
-        
+
         "SecurityGroupIngress" : [ {
           "IpProtocol" : "-1",
           "FromPort" : "0",
           "ToPort" : "65535",
           "CidrIp" : "0.0.0.0/0"
         } ]
-        
+
       }
     }
 
   },
 
   "Outputs" : {
-  
-    "masterPrivateIP" : {
-      "Description" : "Private IP of master",
-      "Value" : { "Fn::GetAtt" : [ "master", "PrivateIp" ] }
-    },    
-    "masterPublicIP" : {
-      "Description" : "Public IP of master",
-      "Value" : { "Fn::GetAtt" : [ "master", "PublicIp" ] }
-    },    
+
+    "managerPrivateIP" : {
+      "Description" : "Private IP of manager",
+      "Value" : { "Fn::GetAtt" : [ "manager", "PrivateIp" ] }
+    },
+    "managerPublicIP" : {
+      "Description" : "Public IP of manager",
+      "Value" : { "Fn::GetAtt" : [ "manager", "PublicIp" ] }
+    },
 
     "interlockPrivateIP" : {
       "Description" : "Private IP of interlock",
       "Value" : { "Fn::GetAtt" : [ "interlock", "PrivateIp" ] }
-    },    
+    },
     "interlockPublicIP" : {
       "Description" : "Public IP of interlock",
       "Value" : { "Fn::GetAtt" : [ "interlock", "PublicIp" ] }
-    },    
+    },
 
-  
+
     "frontend01PrivateIP" : {
       "Description" : "Private IP of frontend01",
       "Value" : { "Fn::GetAtt" : [ "frontend01", "PrivateIp" ] }
-    },    
+    },
     "frontend01PublicIP" : {
       "Description" : "Public IP of frontend01",
       "Value" : { "Fn::GetAtt" : [ "frontend01", "PublicIp" ] }
-    },    
+    },
 
     "frontend02PrivateIP" : {
       "Description" : "Private IP of frontend02",
       "Value" : { "Fn::GetAtt" : [ "frontend02", "PrivateIp" ] }
-    },    
+    },
     "frontend02PublicIP" : {
       "Description" : "Public IP of frontend02",
       "Value" : { "Fn::GetAtt" : [ "frontend02", "PublicIp" ] }
@@ -392,7 +392,7 @@
       "Description" : "Public IP of worker01",
       "Value" : { "Fn::GetAtt" : [ "worker01", "PublicIp" ] }
     },
-    
+
     "storePrivateIP" : {
       "Description" : "Private IP of store",
       "Value" : { "Fn::GetAtt" : [ "store", "PrivateIp" ] }
@@ -401,6 +401,6 @@
       "Description" : "Public IP of store",
       "Value" : { "Fn::GetAtt" : [ "store", "PublicIp" ] }
     }
-    
+
   }
 }
