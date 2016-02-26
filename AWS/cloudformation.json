@@ -125,8 +125,8 @@
 
     "AWSRegionArch2AMI" : {
       "us-east-1"        : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
-      "us-west-2"        : {"HVM64" : "ami-8d9172ed",  "HVMG2" : "ami-8d9172ed"},
-      "us-west-1"        : {"HVM64" : "ami-ef5b2a8f",  "HVMG2" : "ami-ef5b2a8f"},
+      "us-west-2"        : {"HVM64" : "ami-aff71acf",  "HVMG2" : "ami-aff71acf"},
+      "us-west-1"        : {"HVM64" : "ami-d05b2bb0",  "HVMG2" : "ami-d05b2bb0"},
       "eu-west-1"        : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
       "eu-central-1"     : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
       "ap-northeast-1"   : {"HVM64" : "NOT_SUPPORTED", "HVMG2" : "NOT_SUPPORTED"},
