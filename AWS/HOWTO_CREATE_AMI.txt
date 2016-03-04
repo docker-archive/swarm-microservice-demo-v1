@@ -9,7 +9,6 @@ How I Created AMI "ami-bb90e5db" (Swarm-ready Ubuntu trusty):
 		sudo apt-get -y install linux-image-extra-$(uname -r) docker-engine linux-image-generic-lts-utopic
 		sudo reboot
 		sudo usermod -a -G docker ubuntu   ## add ubuntu user to docker group
-		sudo sh -c 'echo DOCKER_OPTS=\"--cluster-store=consul://192.168.33.11:8500 --cluster-advertise=eth0:2375 -H=tcp://0.0.0.0:2375 -H=unix:///var/run/docker.sock\" >> /etc/default/docker'
 		sudo service docker restart
 
 	- Removed the   ``/etc/docker/key.json` file
