@@ -1,6 +1,6 @@
 # Swarm Example Cluster:  Microservices App
 
-This is a sample Swarm cluster that illustrates how Swarm can be used as the foundation for a high-traffic microservice-architecture web application.  It is based on the Docker Cats-vs-Dogs voting example application, but re-architected to accomodate arbitrarily large scale through the use of parallel vote capture frontends and asynchronous background workers processing each vote.
+This is a sample Swarm cluster that illustrates how Swarm can be used as the foundation for a high-traffic microservice-architecture web application.  It is based on the Docker Cats-vs-Dogs voting example application, but re-architected to accommodate arbitrarily large scale through the use of parallel vote capture frontends and asynchronous background workers processing each vote.
 
 # Use Case
 
@@ -8,7 +8,7 @@ Imagine that your company is planning to buy an ad during the Superbowl to drive
 
 # Architecture
 
-An Interlock load balancer (ha\_proxy plugin) sits in front of N web containers, each of which runs a simple Python (Flask) app that accepts votes and queues them into a redis container on the same node.  These N web (+ redis) nodes capture votes quickly and can scale up to any value of N since they operate independently.  Any level of expected voting traffic can thus be accomodated.  
+An Interlock load balancer (ha\_proxy plugin) sits in front of N web containers, each of which runs a simple Python (Flask) app that accepts votes and queues them into a redis container on the same node.  These N web (+ redis) nodes capture votes quickly and can scale up to any value of N since they operate independently.  Any level of expected voting traffic can thus be accommodated.  
 
 Asynchronously, M background workers running on separate nodes scan through those N redis containers, dequeueing votes, de-duplicating them (to prevent double voting) and committing the results to a single postgres container that runs on its own node.
 
